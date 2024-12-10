@@ -39,7 +39,7 @@ class _DeviceSetupState extends State<DeviceSetup> {
     TextEditingController password = TextEditingController();
     TextEditingController devID = TextEditingController();
     TextEditingController devName = TextEditingController();
-
+    print("Entries Submitted");
     Future<void> handleSubmit() async {
       if (formKey.currentState!.validate()) {
         setState(() {
@@ -50,79 +50,87 @@ class _DeviceSetupState extends State<DeviceSetup> {
           password.text,
         );
         bool isPing = await isPingSuccessful(ipAddr.text);
-        if (!context.mounted) return;
+        // print(isPing);
+        // bool isPing = true;
+        print(isConnected);
+        // if (!context.mounted) return;
         // await deviceNameEnter(context);
         devName.text = devID.text;
-        if (!isPing || devName.text.isEmpty || !isConnected) {
-          String errorN = "Failed! Please provide valid details.";
-          if (!isConnected) {
-            errorN =
-                "Connection to the device WiFi failed. Please check the WiFi settings and try again.";
-          } else if (!isPing) {
-            errorN = "Unable to ping the device. Please try again later.";
-          } else if (devName.text.isEmpty) {
-            errorN =
-                "Device name cannot be empty. Please enter a valid device name.";
+        // if (!isPing || devName.text.isEmpty || !isConnected) {
+        //   String errorN = "Failed! Please provide valid details.";
+        //   if (!isConnected) {
+        //     errorN =
+        //         "Connection to the device WiFi failed. Please check the WiFi settings and try again.";
+        //   } else if (!isPing) {
+        //     errorN = "Unable to ping the device. Please try again later.";
+        //   } else if (devName.text.isEmpty) {
+        //     errorN =
+        //         "Device name cannot be empty. Please enter a valid device name.";
+        //   }
+        //   toastification.show(
+        //     context: context,
+        //     type: ToastificationType.error,
+        //     style: ToastificationStyle.flat,
+        //     alignment: Alignment.bottomCenter,
+        //     autoCloseDuration: const Duration(seconds: 5),
+        //     title: Text(
+        //       errorN,
+        //       textAlign: TextAlign.center,
+        //     ),
+        //   );
+        //   setState(() {
+        //     isLoading = false;
+        //   });
+        //   return;
+        // } else {
+        var listPlants = await PlantManager().listPlant();
+        if (listPlants.isEmpty) {
+          var deviceList = await HardwareManager().listDevices();
+          int deviceLastID = 0;
+          if (deviceList.isNotEmpty) {
+            deviceLastID = deviceList.last?.id + 1 ?? 0;
           }
+          Hardware hardware = Hardware(
+            name: devName.text,
+            ip: ipAddr.text,
+            ssid: ssid.text,
+            passwd: password.text,
+            id: deviceLastID,
+          );
+          HardwareManager().addHardware(hardware);
+          if (!context.mounted) return;
           toastification.show(
             context: context,
-            type: ToastificationType.error,
+            type: ToastificationType.success,
             style: ToastificationStyle.flat,
             alignment: Alignment.bottomCenter,
             autoCloseDuration: const Duration(seconds: 5),
-            title: Text(
-              errorN,
+            title: const Text(
+              'Device Added Successfully!',
               textAlign: TextAlign.center,
             ),
           );
-          setState(() {
-            isLoading = false;
-          });
-          return;
         } else {
-          var listPlants = await PlantManager().listPlant();
-          if (listPlants.isEmpty) {
-            var deviceList = await HardwareManager().listDevices();
-            int deviceLastID = 0;
-            if (deviceList.isNotEmpty) {
-              deviceLastID = deviceList.last?.id + 1 ?? 0;
-            }
-            Hardware hardware = Hardware(
-              name: devName.text,
-              ip: ipAddr.text,
-              ssid: ssid.text,
-              passwd: password.text,
-              id: deviceLastID,
-            );
-            HardwareManager().addHardware(hardware);
-            if (!context.mounted) return;
-            toastification.show(
-              context: context,
-              type: ToastificationType.success,
-              style: ToastificationStyle.flat,
-              alignment: Alignment.bottomCenter,
-              autoCloseDuration: const Duration(seconds: 5),
-              title: const Text(
-                'Device Added Successfully!',
-                textAlign: TextAlign.center,
-              ),
-            );
-          } else {
-            if (!context.mounted) return;
-            associatePlant(context, listPlants, [
+          if (!context.mounted) return;
+          associatePlant(
+            context,
+            listPlants,
+            [
               devName.text,
               ipAddr.text,
               ssid.text,
               password.text,
-            ]);
-          }
-          setState(() {
-            isLoading = false;
-          });
+            ],
+          );
         }
-        Navigator.pop(context);
+        setState(() {
+          isLoading = false;
+        });
       }
+      if (!context.mounted) return;
+      Navigator.pop(context);
     }
+    // }
 
     Map<String, String> extractWiFiDetails(String qrData) {
       String ssid = '';

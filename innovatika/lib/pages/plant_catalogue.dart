@@ -133,7 +133,7 @@ class _PlantCategorizationState extends State<PlantCategorization> {
       model: "gemini-1.5-flash-latest",
     ).generateContentFromText(
       prompt:
-          'Hi, I am looking for some plants that can be planted in: $locationCity i want no other text just json only also i want it categories $category that for every plant it contains these keys [name, image, time_to_grow]. keep the value of image key to "default" Strictly only json and no text and image url should return status code 200, give a maximum of 5',
+          "Give me 5 fruits that can be grown in $locationCity. For each $category, provide its name, a placeholder image, and the approximate time it takes to grow. Format the output as JSON with the following keys: name, image, time_to_grow.",
     );
 
     if (category == "fruit") {

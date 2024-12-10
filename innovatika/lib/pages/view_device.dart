@@ -21,8 +21,10 @@ class _ViewDeviceState extends State<ViewDevice> {
   @override
   void initState() {
     super.initState();
+    print(widget.hardware.ip);
     channel = IOWebSocketChannel.connect('ws://${widget.hardware.ip}');
     channel.stream.listen((data) {
+      print(_message);
       setState(() {
         _message = data;
       });
@@ -58,64 +60,66 @@ class _ViewDeviceState extends State<ViewDevice> {
     } else if (int.parse(_message) > 3800) {
       data = "Very Dry";
     }
-    return FutureBuilder(
-      future: fetchPlants(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return emptyLoading("No Plants found");
-        }
-        if (snapshot.hasData) {
-          var devices = snapshot.data;
-          if (devices!.isEmpty) {
+    return Scaffold(
+      body: FutureBuilder(
+        future: fetchPlants(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
             return emptyLoading("No Plants found");
           }
-          return ListView.builder(
-            itemCount: devices.length,
-            itemBuilder: (context, index) {
-              if (devices[index].id == widget.hardware.plantAssociated) {
-                return ListTile(
-                  tileColor: Theme.of(context).colorScheme.surface,
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-                  leading: Image.network(
-                    devices[index].image,
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
-                  ),
-                  title: Text(
-                    devices[index].name,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+          if (snapshot.hasData) {
+            var devices = snapshot.data;
+            if (devices!.isEmpty) {
+              return emptyLoading("No Plants found");
+            }
+            return ListView.builder(
+              itemCount: devices.length,
+              itemBuilder: (context, index) {
+                if (devices[index].id == widget.hardware.plantAssociated) {
+                  return ListTile(
+                    tileColor: Theme.of(context).colorScheme.surface,
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+                    leading: Image.network(
+                      devices[index].image,
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
                     ),
-                  ),
-                  subtitle: Text(
-                    _message,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  trailing: Container(
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.blueAccent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      data,
+                    title: Text(
+                      devices[index].name,
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                );
-              } else {
-                return emptyLoading("Not Found!");
-              }
-            },
-          );
-        } else {
-          return LoadingDeviceAnimation();
-        }
-      },
+                    subtitle: Text(
+                      _message,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    trailing: Container(
+                      padding: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        data,
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  );
+                } else {
+                  return emptyLoading("Not Found!");
+                }
+              },
+            );
+          } else {
+            return LoadingDeviceAnimation();
+          }
+        },
+      ),
     );
   }
 }
