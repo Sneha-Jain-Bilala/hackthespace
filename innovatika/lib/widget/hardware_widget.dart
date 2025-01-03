@@ -5,8 +5,8 @@ import 'package:innovatika/database/informer_hardware.dart';
 class HardwareManager {
   Future<List> listDevices() async {
     final realm =
-        await Realm.open(Configuration.local([HardwareInformer.schema]));
-    var devices = realm.all<HardwareInformer>().toList();
+        await Realm.open(Configuration.local([HardwareInformerr.schema]));
+    var devices = realm.all<HardwareInformerr>().toList();
     if (devices.isEmpty) {
       return [];
     }
@@ -15,12 +15,11 @@ class HardwareManager {
 
   Future<void> addHardware(Hardware hardware) async {
     final realm =
-        await Realm.open(Configuration.local([HardwareInformer.schema]));
-    var garData = HardwareInformer(
+        await Realm.open(Configuration.local([HardwareInformerr.schema]));
+    var garData = HardwareInformerr(
       hardware.name,
-      hardware.ip,
-      hardware.ssid,
       hardware.passwd,
+      hardware.devName,
       hardware.plantAssociated,
       hardware.id,
     );
@@ -31,8 +30,8 @@ class HardwareManager {
 
   Future<void> addGarden(int id, int plantID) async {
     final realm =
-        await Realm.open(Configuration.local([HardwareInformer.schema]));
-    var garData = realm.find<HardwareInformer>(id);
+        await Realm.open(Configuration.local([HardwareInformerr.schema]));
+    var garData = realm.find<HardwareInformerr>(id);
     if (garData != null) {
       realm.write(() {
         garData.plantAssociated = plantID;
@@ -42,8 +41,8 @@ class HardwareManager {
 
   Future<void> removeHardware(int id) async {
     final realm =
-        await Realm.open(Configuration.local([HardwareInformer.schema]));
-    var garData = realm.find<HardwareInformer>(id);
+        await Realm.open(Configuration.local([HardwareInformerr.schema]));
+    var garData = realm.find<HardwareInformerr>(id);
     if (garData != null) {
       realm.write(() {
         realm.delete(garData);
@@ -53,14 +52,13 @@ class HardwareManager {
 
   Future<Hardware> accessHardware(int id) async {
     final realm =
-        await Realm.open(Configuration.local([HardwareInformer.schema]));
-    var idData = realm.find<HardwareInformer>(id);
+        await Realm.open(Configuration.local([HardwareInformerr.schema]));
+    var idData = realm.find<HardwareInformerr>(id);
     if (idData != null) {
       return Hardware(
         name: idData.name,
-        ip: idData.ip,
-        ssid: idData.ssid,
         passwd: idData.passwd,
+        devName: idData.devName,
         plantAssociated: idData.plantAssociated,
         id: idData.id,
       );

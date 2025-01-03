@@ -34,55 +34,37 @@ class _DeviceSetupState extends State<DeviceSetup> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    TextEditingController ipAddr = TextEditingController();
-    TextEditingController ssid = TextEditingController();
     TextEditingController password = TextEditingController();
     TextEditingController devID = TextEditingController();
     TextEditingController devName = TextEditingController();
-    print("Entries Submitted");
+
     Future<void> handleSubmit() async {
       if (formKey.currentState!.validate()) {
         setState(() {
           isLoading = true;
         });
-        bool isConnected = await connectWifi(
-          ssid.text,
-          password.text,
-        );
-        bool isPing = await isPingSuccessful(ipAddr.text);
-        // print(isPing);
-        // bool isPing = true;
-        print(isConnected);
-        // if (!context.mounted) return;
-        // await deviceNameEnter(context);
         devName.text = devID.text;
-        // if (!isPing || devName.text.isEmpty || !isConnected) {
-        //   String errorN = "Failed! Please provide valid details.";
-        //   if (!isConnected) {
-        //     errorN =
-        //         "Connection to the device WiFi failed. Please check the WiFi settings and try again.";
-        //   } else if (!isPing) {
-        //     errorN = "Unable to ping the device. Please try again later.";
-        //   } else if (devName.text.isEmpty) {
-        //     errorN =
-        //         "Device name cannot be empty. Please enter a valid device name.";
-        //   }
-        //   toastification.show(
-        //     context: context,
-        //     type: ToastificationType.error,
-        //     style: ToastificationStyle.flat,
-        //     alignment: Alignment.bottomCenter,
-        //     autoCloseDuration: const Duration(seconds: 5),
-        //     title: Text(
-        //       errorN,
-        //       textAlign: TextAlign.center,
-        //     ),
-        //   );
-        //   setState(() {
-        //     isLoading = false;
-        //   });
-        //   return;
-        // } else {
+        bool isAuthenticate =
+            await isAuthenticated(devName.text, password.text);
+        if (!context.mounted) return;
+        if (!isAuthenticate) {
+          String errorN = "Failed! Please provide valid details.";
+          toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flat,
+            alignment: Alignment.bottomCenter,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: Text(
+              errorN,
+              textAlign: TextAlign.center,
+            ),
+          );
+          setState(() {
+            isLoading = false;
+          });
+          return;
+        }
         var listPlants = await PlantManager().listPlant();
         if (listPlants.isEmpty) {
           var deviceList = await HardwareManager().listDevices();
@@ -92,10 +74,9 @@ class _DeviceSetupState extends State<DeviceSetup> {
           }
           Hardware hardware = Hardware(
             name: devName.text,
-            ip: ipAddr.text,
-            ssid: ssid.text,
             passwd: password.text,
             id: deviceLastID,
+            devName: devID.text,
           );
           HardwareManager().addHardware(hardware);
           if (!context.mounted) return;
@@ -117,8 +98,7 @@ class _DeviceSetupState extends State<DeviceSetup> {
             listPlants,
             [
               devName.text,
-              ipAddr.text,
-              ssid.text,
+              devID.text,
               password.text,
             ],
           );
@@ -132,7 +112,7 @@ class _DeviceSetupState extends State<DeviceSetup> {
     }
     // }
 
-    Map<String, String> extractWiFiDetails(String qrData) {
+    Map<String, String> extractbarDet(String qrData) {
       String ssid = '';
       String password = '';
       String ipAddress = '';
@@ -180,12 +160,11 @@ class _DeviceSetupState extends State<DeviceSetup> {
                         controller: controller,
                         onDetect: (barcodes) {
                           if (barcodes.raw != null) {
-                            Map<String, String> wifiDetails =
-                                extractWiFiDetails(barcodes.raw.toString());
-                            ssid.text = wifiDetails['ssid'] ?? '';
-                            ipAddr.text = wifiDetails['ip'] ?? '';
-                            password.text = wifiDetails['password'] ?? '';
-                            devID.text = wifiDetails['id'] ?? '';
+                            Map<String, String> barDet =
+                                extractbarDet(barcodes.raw.toString());
+                            password.text = barDet['password'] ?? '';
+                            devID.text = barDet['id'] ?? '';
+                            devName.text = barDet['e'] ?? '';
                             formKey.currentState!.save();
                             handleSubmit();
                           }
@@ -222,64 +201,17 @@ class _DeviceSetupState extends State<DeviceSetup> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
                             child: TextFormField(
-                              controller: ipAddr,
+                              controller: devID,
                               validator: (value) {
-                                if (value == null ||
-                                    value.isEmpty &&
-                                        !RegExp(r'^(?=\d+\.\d+\.\d+\.\d+$)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])$')
-                                            .hasMatch(value)) {
-                                  return 'Enter IP Address';
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Device ID';
                                 }
                                 return null;
                               },
                               decoration: const InputDecoration(
-                                labelText: 'IP Address',
+                                labelText: 'Device ID',
                                 border: OutlineInputBorder(),
                               ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: ssid,
-                                    decoration: const InputDecoration(
-                                      labelText: 'SSID',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Enter Device SSID';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ), // Add space between the two fields
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: password,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Password',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Enter Device Password';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
                           const SizedBox(
@@ -292,12 +224,32 @@ class _DeviceSetupState extends State<DeviceSetup> {
                               controller: devID,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Enter Device ID';
+                                  return 'Enter Password';
                                 }
                                 return null;
                               },
                               decoration: const InputDecoration(
-                                labelText: 'Device ID',
+                                labelText: 'Password',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: TextFormField(
+                              controller: devName,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Device Name';
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                labelText: 'Device Name',
                                 border: OutlineInputBorder(),
                               ),
                             ),

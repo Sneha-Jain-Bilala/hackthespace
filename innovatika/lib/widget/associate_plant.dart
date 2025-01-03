@@ -25,12 +25,10 @@ void associatePlant(BuildContext context, List<dynamic> plants, List input) {
                 if (deviceList.isNotEmpty) {
                   deviceLastID = deviceList.last?.id + 1 ?? 0;
                 }
-
                 Hardware hardware = Hardware(
                   name: input[0],
-                  ip: input[1],
-                  ssid: input[2],
-                  passwd: input[3],
+                  passwd: input[2],
+                  devName: input[1],
                   id: deviceLastID,
                   plantAssociated: selectedPlant,
                 );

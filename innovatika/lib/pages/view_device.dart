@@ -3,7 +3,6 @@ import 'package:innovatika/database/informer_hardware.dart';
 import 'package:innovatika/database/informer_plant.dart';
 import 'package:innovatika/widget/loading.dart';
 import 'package:realm/realm.dart';
-import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ViewDevice extends StatefulWidget {
@@ -21,14 +20,6 @@ class _ViewDeviceState extends State<ViewDevice> {
   @override
   void initState() {
     super.initState();
-    print(widget.hardware.ip);
-    channel = IOWebSocketChannel.connect('ws://${widget.hardware.ip}');
-    channel.stream.listen((data) {
-      print(_message);
-      setState(() {
-        _message = data;
-      });
-    });
   }
 
   Future<List<PlantInformer>> fetchPlants() async {

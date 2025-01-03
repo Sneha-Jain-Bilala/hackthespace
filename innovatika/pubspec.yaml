@@ -42,7 +42,7 @@ dependencies:
   #     url: https://github.com/giandifra/arcore_flutter_plugin/
   #     ref: e2bf197
   o3d: ^3.1.2
-  geolocator: ^12.0.0
+  geolocator: ^13.0.2
   lottie: ^3.1.2
   toastification: ^2.0.0
   permission_handler: ^11.3.1

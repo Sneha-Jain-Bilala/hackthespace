@@ -16,13 +16,13 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   late bool isOffline = true;
-  Future<List<HardwareInformer>> fetchDevices() async {
+  Future<List<HardwareInformerr>> fetchDevices() async {
     // Open a Realm instance
     var config =
-        await Realm.open(Configuration.local(([HardwareInformer.schema])));
+        await Realm.open(Configuration.local(([HardwareInformerr.schema])));
 
     // Fetch all users from MongoDB Realm
-    var devices = config.all<HardwareInformer>().toList();
+    var devices = config.all<HardwareInformerr>().toList();
     return devices;
   }
 
@@ -36,7 +36,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: FutureBuilder<List<HardwareInformer>>(
+      body: FutureBuilder<List<HardwareInformerr>>(
         future: fetchDevices(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -72,8 +72,6 @@ class _HomepageState extends State<Homepage> {
                         plantt,
                         [
                           hardware.name,
-                          hardware.ip,
-                          hardware.ssid,
                           hardware.passwd,
                         ],
                       );
