@@ -44,8 +44,10 @@ class _DeviceSetupState extends State<DeviceSetup> {
           isLoading = true;
         });
         devName.text = devID.text;
-        bool isAuthenticate =
-            await isAuthenticated(devName.text, password.text);
+        bool isAuthenticate = await CredentialService().validateCredentials(
+          deviceId: devName.text,
+          password: password.text,
+        );
         if (!context.mounted) return;
         if (!isAuthenticate) {
           String errorN = "Failed! Please provide valid details.";
@@ -75,6 +77,7 @@ class _DeviceSetupState extends State<DeviceSetup> {
           Hardware hardware = Hardware(
             name: devName.text,
             passwd: password.text,
+            devImage: "assets/images/device.jpg",
             id: deviceLastID,
             devName: devID.text,
           );
@@ -113,31 +116,27 @@ class _DeviceSetupState extends State<DeviceSetup> {
     // }
 
     Map<String, String> extractbarDet(String qrData) {
-      String ssid = '';
       String password = '';
-      String ipAddress = '';
-      String id = '';
+      String devID = '';
+      String devName = '';
 
       // Split the input string by commas to get individual parts
       List<String> parts = qrData.split(',');
 
       // Loop through each part and extract the corresponding value
       for (String part in parts) {
-        if (part.startsWith('ssid:')) {
-          ssid = part.substring(5); // Remove 'ssid:' and get the SSID
-        } else if (part.startsWith('ip:')) {
-          ipAddress = part.substring(3); // Remove 'ip:' and get the IP address
-        } else if (part.startsWith('pass:')) {
-          password = part.substring(5); // Remove 'pass:' and get the password
-        } else if (part.startsWith('id:')) {
-          id = part.substring(3); // Remove 'id:' and get the device id
+        if (part.contains('password:')) {
+          password = part.split(',')[1];
+        } else if (part.contains('devID:')) {
+          devID = part.split(',')[1];
+        } else if (part.contains('devName:')) {
+          devName = part.split(',')[1];
         }
       }
       return {
-        'ssid': ssid,
-        'ip': ipAddress,
         'password': password,
-        'id': id,
+        'devID': devID,
+        'devName': devName,
       };
     }
 
@@ -163,8 +162,8 @@ class _DeviceSetupState extends State<DeviceSetup> {
                             Map<String, String> barDet =
                                 extractbarDet(barcodes.raw.toString());
                             password.text = barDet['password'] ?? '';
-                            devID.text = barDet['id'] ?? '';
-                            devName.text = barDet['e'] ?? '';
+                            devID.text = barDet['devID'] ?? '';
+                            devName.text = barDet['devName'] ?? '';
                             formKey.currentState!.save();
                             handleSubmit();
                           }
@@ -221,7 +220,7 @@ class _DeviceSetupState extends State<DeviceSetup> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
                             child: TextFormField(
-                              controller: devID,
+                              controller: password,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Enter Password';

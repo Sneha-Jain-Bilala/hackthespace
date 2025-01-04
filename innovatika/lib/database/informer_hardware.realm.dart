@@ -13,12 +13,14 @@ class HardwareInformerr extends _HardwareInformerr
     String name,
     String passwd,
     String devName,
+    String devImage,
     int plantAssociated,
     int id,
   ) {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'passwd', passwd);
     RealmObjectBase.set(this, 'devName', devName);
+    RealmObjectBase.set(this, 'devImage', devImage);
     RealmObjectBase.set(this, 'plantAssociated', plantAssociated);
     RealmObjectBase.set(this, 'id', id);
   }
@@ -39,6 +41,12 @@ class HardwareInformerr extends _HardwareInformerr
   String get devName => RealmObjectBase.get<String>(this, 'devName') as String;
   @override
   set devName(String value) => RealmObjectBase.set(this, 'devName', value);
+
+  @override
+  String get devImage =>
+      RealmObjectBase.get<String>(this, 'devImage') as String;
+  @override
+  set devImage(String value) => RealmObjectBase.set(this, 'devImage', value);
 
   @override
   int get plantAssociated =>
@@ -70,6 +78,7 @@ class HardwareInformerr extends _HardwareInformerr
       'name': name.toEJson(),
       'passwd': passwd.toEJson(),
       'devName': devName.toEJson(),
+      'devImage': devImage.toEJson(),
       'plantAssociated': plantAssociated.toEJson(),
       'id': id.toEJson(),
     };
@@ -83,6 +92,7 @@ class HardwareInformerr extends _HardwareInformerr
         'name': EJsonValue name,
         'passwd': EJsonValue passwd,
         'devName': EJsonValue devName,
+        'devImage': EJsonValue devImage,
         'plantAssociated': EJsonValue plantAssociated,
         'id': EJsonValue id,
       } =>
@@ -90,6 +100,7 @@ class HardwareInformerr extends _HardwareInformerr
           fromEJson(name),
           fromEJson(passwd),
           fromEJson(devName),
+          fromEJson(devImage),
           fromEJson(plantAssociated),
           fromEJson(id),
         ),
@@ -105,6 +116,7 @@ class HardwareInformerr extends _HardwareInformerr
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('passwd', RealmPropertyType.string),
       SchemaProperty('devName', RealmPropertyType.string),
+      SchemaProperty('devImage', RealmPropertyType.string),
       SchemaProperty('plantAssociated', RealmPropertyType.int),
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);

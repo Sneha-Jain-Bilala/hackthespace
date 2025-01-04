@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:innovatika/database/informer_hardware.dart';
 import 'package:innovatika/database/informer_plant.dart';
+import 'package:innovatika/widget/appbar.dart';
 import 'package:innovatika/widget/loading.dart';
 import 'package:realm/realm.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ViewDevice extends StatefulWidget {
   final Hardware hardware;
@@ -14,98 +14,287 @@ class ViewDevice extends StatefulWidget {
 }
 
 class _ViewDeviceState extends State<ViewDevice> {
-  String _message = "4000";
-  String data = "";
-  late WebSocketChannel channel;
-  @override
-  void initState() {
-    super.initState();
-  }
+  int moisture = 0;
+  int temperature = 0;
+  int humidity = 0;
+  String _message = "Moderately Wet";
 
-  Future<List<PlantInformer>> fetchPlants() async {
+  Future<PlantInformer?> fetchPlantById(int plantId) async {
+    print(plantId);
+    print(widget.hardware.id);
     // Open a Realm instance
     var config =
         await Realm.open(Configuration.local(([PlantInformer.schema])));
 
-    // Fetch all users from MongoDB Realm
-    var gardenn = config.all<PlantInformer>().toList();
-    return gardenn;
-  }
-
-  @override
-  void dispose() {
-    channel.sink.close();
-    super.dispose();
+    // Fetch the plant with the given ID from MongoDB Realm
+    var plant = config.find<PlantInformer>(plantId);
+    return plant;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (int.parse(_message) > 0 && int.parse(_message) < 500) {
-      data = "Very Wet";
-    } else if (int.parse(_message) > 500 && int.parse(_message) < 1200) {
-      data = "Moderately Wet";
-    } else if (int.parse(_message) > 1200 && int.parse(_message) < 2500) {
-      data = "Moist";
-    } else if (int.parse(_message) > 2500 && int.parse(_message) < 3800) {
-      data = "Dry";
-    } else if (int.parse(_message) > 3800) {
-      data = "Very Dry";
+    if (moisture > 0 && moisture < 500) {
+      _message = "Very Wet";
+    } else if (moisture > 500 && moisture < 1200) {
+      _message = "Moderately Wet";
+    } else if (moisture > 1200 && moisture < 2500) {
+      _message = "Moist";
+    } else if (moisture > 2500 && moisture < 3800) {
+      _message = "Dry";
+    } else if (moisture > 3800) {
+      _message = "Very Dry";
     }
     return Scaffold(
+      appBar: commonApp(
+        context: context,
+        title: widget.hardware.name,
+      ),
       body: FutureBuilder(
-        future: fetchPlants(),
+        future: fetchPlantById(widget.hardware.plantAssociated),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return emptyLoading("No Plants found");
           }
           if (snapshot.hasData) {
-            var devices = snapshot.data;
-            if (devices!.isEmpty) {
+            var plant = snapshot.data;
+            if (plant == null) {
               return emptyLoading("No Plants found");
             }
-            return ListView.builder(
-              itemCount: devices.length,
-              itemBuilder: (context, index) {
-                if (devices[index].id == widget.hardware.plantAssociated) {
-                  return ListTile(
-                    tileColor: Theme.of(context).colorScheme.surface,
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-                    leading: Image.network(
-                      devices[index].image,
-                      width: 70,
-                      height: 70,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(
-                      devices[index].name,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+            // if (widget.hardware.id == widget.hardware.plantAssociated) {
+            return ListView(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Card(
+                        elevation: 5,
+                        shadowColor: Colors.black54,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(15),
+                              ),
+                              child: Image.network(
+                                plant.image,
+                                fit: BoxFit.cover,
+                                height: 200, // Set a fixed height
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    plant.name,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueAccent,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      _message,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    subtitle: Text(
-                      _message,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    trailing: Container(
-                      padding: EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent,
-                        borderRadius: BorderRadius.circular(10),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Card(
+                        elevation: 5,
+                        shadowColor: Colors.black54,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(15),
+                              ),
+                              child: Image.network(
+                                plant.image,
+                                fit: BoxFit.cover,
+                                height: 200, // Set a fixed height
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    plant.name,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueAccent,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      _message,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Text(
-                        data,
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Card(
+                        elevation: 5,
+                        shadowColor: Colors.black54,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(15),
+                              ),
+                              child: Image.network(
+                                plant.image,
+                                fit: BoxFit.cover,
+                                height: 200, // Set a fixed height
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    plant.name,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueAccent,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      _message,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  );
-                } else {
-                  return emptyLoading("Not Found!");
-                }
-              },
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Card(
+                        elevation: 5,
+                        shadowColor: Colors.black54,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(15),
+                              ),
+                              child: Image.network(
+                                plant.image,
+                                fit: BoxFit.cover,
+                                height: 200, // Set a fixed height
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    plant.name,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueAccent,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      _message,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             );
+            // } else {
+            //   return emptyLoading("Not Found!");
+            // }
           } else {
             return LoadingDeviceAnimation();
           }

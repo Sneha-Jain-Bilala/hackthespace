@@ -20,6 +20,7 @@ class HardwareManager {
       hardware.name,
       hardware.passwd,
       hardware.devName,
+      hardware.devImage,
       hardware.plantAssociated,
       hardware.id,
     );
@@ -43,6 +44,7 @@ class HardwareManager {
     final realm =
         await Realm.open(Configuration.local([HardwareInformerr.schema]));
     var garData = realm.find<HardwareInformerr>(id);
+    print(garData);
     if (garData != null) {
       realm.write(() {
         realm.delete(garData);
@@ -58,6 +60,7 @@ class HardwareManager {
       return Hardware(
         name: idData.name,
         passwd: idData.passwd,
+        devImage: idData.devImage,
         devName: idData.devName,
         plantAssociated: idData.plantAssociated,
         id: idData.id,

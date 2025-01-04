@@ -5,7 +5,9 @@ import 'package:innovatika/pages/view_device.dart';
 import 'package:innovatika/widget/associate_plant.dart';
 import 'package:innovatika/widget/hardware_widget.dart';
 import 'package:innovatika/widget/loading.dart';
+import 'package:innovatika/widget/nav.dart';
 import 'package:realm/realm.dart';
+import 'package:toastification/toastification.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -15,7 +17,6 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  late bool isOffline = true;
   Future<List<HardwareInformerr>> fetchDevices() async {
     // Open a Realm instance
     var config =
@@ -28,7 +29,7 @@ class _HomepageState extends State<Homepage> {
 
   @override
   void initState() {
-    // isPingSuccessful("192.168.4.1")
+    fetchDevices();
     super.initState();
   }
 
@@ -63,18 +64,40 @@ class _HomepageState extends State<Homepage> {
 
                       // Fetch all plant from MongoDB Realm
                       var plantt = config.all<PlantInformer>().toList();
-                      //fetch hardware
-                      Hardware hardware =
-                          await HardwareManager().accessHardware(device.id);
-                      if (!context.mounted) return;
-                      associatePlant(
-                        context,
-                        plantt,
-                        [
-                          hardware.name,
-                          hardware.passwd,
-                        ],
-                      );
+                      if (plantt.isEmpty) {
+                        toastification.show(
+                          context: context,
+                          type: ToastificationType.error,
+                          style: ToastificationStyle.flat,
+                          alignment: Alignment.bottomCenter,
+                          autoCloseDuration: const Duration(seconds: 5),
+                          title: Text(
+                            "Add a Plant first",
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NavBar(
+                              index: 1,
+                            ),
+                          ),
+                        );
+                      } else {
+                        //fetch hardware
+                        Hardware hardware =
+                            await HardwareManager().accessHardware(device.id);
+                        if (!context.mounted) return;
+                        associatePlant(
+                          context,
+                          plantt,
+                          [
+                            hardware.name,
+                            hardware.passwd,
+                          ],
+                        );
+                      }
                     } else {
                       Hardware hardware =
                           await HardwareManager().accessHardware(device.id);
@@ -118,27 +141,32 @@ class _HomepageState extends State<Homepage> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                'assets/images/device.jpg',
-                                fit: BoxFit.contain,
-                                height: 70,
-                                width: 70,
-                              ),
+                              child: device.devImage.contains("assets")
+                                  ? Image.asset(
+                                      'assets/images/device.jpg',
+                                      fit: BoxFit.contain,
+                                      height: 70,
+                                      width: 70,
+                                    )
+                                  : Image.network(
+                                      device.devImage,
+                                      fit: BoxFit.contain,
+                                      height: 70,
+                                      width: 70,
+                                    ),
                             ),
                             GestureDetector(
-                              onTap: () {
-                                // TODO
-                                // toggleOnOFF(device);
+                              onTap: () async {
+                                await HardwareManager()
+                                    .removeHardware(device.id);
+
+                                await fetchDevices();
                               },
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(50),
-                                child: Image.asset(
-                                  isOffline
-                                      ? 'assets/images/off.png'
-                                      : 'assets/images/on.png',
-                                  fit: BoxFit.contain,
-                                  height: 35,
-                                  width: 35,
+                                child: Icon(
+                                  Icons.delete_outline,
+                                  size: 30,
                                 ),
                               ),
                             ),
@@ -147,25 +175,11 @@ class _HomepageState extends State<Homepage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Container(
-                          color: Colors.white,
-                          width: double.infinity,
-                          child: Text(
-                            isOffline ? 'OFFLINE' : "ONLINE",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.bold,
-                              color: isOffline ? Colors.red : Colors.green,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
                         const SizedBox(
                           height: 10,
                         ),
                         Text(
-                          "IoT",
+                          device.name,
                           style: const TextStyle(
                             color: Color(0xff0f52ba),
                             fontSize: 20,
