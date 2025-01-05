@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:innovatika/database/informer_hardware.dart';
 import 'package:innovatika/database/informer_plant.dart';
@@ -17,32 +18,48 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  Future<List<HardwareInformerr>> fetchDevices() async {
-    // Open a Realm instance
-    var config =
-        await Realm.open(Configuration.local(([HardwareInformerr.schema])));
-
-    // Fetch all users from MongoDB Realm
-    var devices = config.all<HardwareInformerr>().toList();
-    return devices;
-  }
+  late Realm realm;
+  late StreamSubscription<RealmResultsChanges<HardwareInformerr>>
+      _devicesSubscription;
 
   @override
   void initState() {
-    fetchDevices();
     super.initState();
+    _initializeRealm();
+  }
+
+  void _initializeRealm() {
+    Realm.open(Configuration.local([HardwareInformerr.schema]))
+        .then((openedRealm) {
+      setState(() {
+        realm = openedRealm;
+        final devices = realm.all<HardwareInformerr>().changes;
+        _devicesSubscription = devices.listen((event) => _onDevicesChanged());
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _devicesSubscription.cancel();
+    realm.close();
+    super.dispose();
+  }
+
+  void _onDevicesChanged() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: FutureBuilder<List<HardwareInformerr>>(
-        future: fetchDevices(),
+      body: StreamBuilder<RealmResultsChanges<HardwareInformerr>>(
+        stream: realm.all<HardwareInformerr>().changes,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            var devices = snapshot.data;
-            if (devices!.isEmpty) {
+            var devices = snapshot.data!.results;
+            if (devices.isEmpty) {
               return emptyLoading("No devices found");
             }
             return GridView.builder(
@@ -152,8 +169,6 @@ class _HomepageState extends State<Homepage> {
                               onTap: () async {
                                 await HardwareManager()
                                     .removeHardware(device.id);
-
-                                await fetchDevices();
                               },
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(50),

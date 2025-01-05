@@ -40,7 +40,7 @@ class HardwareManager {
     }
   }
 
-  Future<void> removeHardware(int id) async {
+  Future<List> removeHardware(int id) async {
     final realm =
         await Realm.open(Configuration.local([HardwareInformerr.schema]));
     var garData = realm.find<HardwareInformerr>(id);
@@ -50,6 +50,8 @@ class HardwareManager {
         realm.delete(garData);
       });
     }
+
+    return listDevices();
   }
 
   Future<Hardware> accessHardware(int id) async {

@@ -134,8 +134,8 @@ class _ViewDeviceState extends State<ViewDevice> {
                                             child: Image.asset(
                                               'assets/images/soil_m.png',
                                               fit: BoxFit.cover,
-                                              width: 70,
-                                              height: 70,
+                                              width: 50,
+                                              height: 50,
                                             ),
                                           ),
                                           SizedBox(width: 10),
@@ -411,8 +411,8 @@ class _ViewDeviceState extends State<ViewDevice> {
                                             child: Image.asset(
                                               'assets/images/health.png',
                                               fit: BoxFit.cover,
-                                              width: 70,
-                                              height: 70,
+                                              width: 50,
+                                              height: 50,
                                             ),
                                           ),
                                           SizedBox(width: 10),

@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:innovatika/database/informer_hardware.dart';
+import 'package:innovatika/pages/homepage.dart';
 import 'package:innovatika/widget/appbar.dart';
 import 'package:innovatika/widget/associate_plant.dart';
 import 'package:innovatika/widget/hardware_widget.dart';
 import 'package:innovatika/widget/loading.dart';
+import 'package:innovatika/widget/nav.dart';
 import 'package:innovatika/widget/plant_widget.dart';
 import 'package:innovatika/widget/wifi.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -37,6 +39,9 @@ class _DeviceSetupState extends State<DeviceSetup> {
     TextEditingController password = TextEditingController();
     TextEditingController devID = TextEditingController();
     TextEditingController devName = TextEditingController();
+    devName.text = "device_1";
+    devID.text = "device_1";
+    password.text = "1_device";
 
     Future<void> handleSubmit() async {
       if (formKey.currentState!.validate()) {
@@ -111,7 +116,7 @@ class _DeviceSetupState extends State<DeviceSetup> {
         });
       }
       if (!context.mounted) return;
-      Navigator.pop(context);
+      Navigator.popUntil(context, (route) => route.isFirst);
     }
     // }
 

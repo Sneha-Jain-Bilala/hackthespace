@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:innovatika/database/informer_hardware.dart';
+import 'package:innovatika/pages/homepage.dart';
 import 'package:innovatika/widget/hardware_widget.dart';
 import 'package:innovatika/widget/nav.dart';
 import 'package:toastification/toastification.dart';
@@ -24,7 +25,6 @@ void associatePlant(BuildContext context, List<dynamic> plants, List input) {
                   var plantData = plants[index];
                   return ListTile(
                     onTap: () async {
-                      print(input);
                       int selectedPlant = plantData.id;
                       var deviceList = await HardwareManager().listDevices();
                       int deviceLastID = 0;
@@ -41,14 +41,7 @@ void associatePlant(BuildContext context, List<dynamic> plants, List input) {
                       );
                       await HardwareManager().removeHardware(selectedPlant);
                       await HardwareManager().addHardware(hardware);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NavBar(
-                            index: 0,
-                          ),
-                        ),
-                      );
+                      Navigator.popUntil(context, (route) => route.isFirst);
                       setState(() {});
                       if (!context.mounted) return;
                       toastification.show(
@@ -121,5 +114,3 @@ void associatePlant(BuildContext context, List<dynamic> plants, List input) {
     },
   );
 }
-
-void addDeviceHard() {}
