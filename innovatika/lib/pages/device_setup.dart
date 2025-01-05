@@ -48,7 +48,7 @@ class _DeviceSetupState extends State<DeviceSetup> {
           deviceId: devName.text,
           password: password.text,
         );
-        if (!context.mounted) return;
+        // if (!context.mounted) return;
         if (!isAuthenticate) {
           String errorN = "Failed! Please provide valid details.";
           toastification.show(

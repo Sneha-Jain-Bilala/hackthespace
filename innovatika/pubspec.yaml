@@ -51,7 +51,7 @@ dependencies:
   google_generative_ai: ^0.4.3
   path_provider: ^2.0.9
   provider: ^6.1.2
-  intl: ^0.20.0
+  intl: ^0.19.0
   geocoding: ^3.0.0
   flutter_native_splash: ^2.2.19
   http: ^1.2.1
@@ -60,10 +60,8 @@ dependencies:
   iconsax_flutter: ^1.0.0
   flashy_tab_bar2: ^0.0.10
   mobile_scanner: ^6.0.2
-  # wifi_iot: ^0.3.19+1
-  # web_socket_channel: ^3.0.1
-  # web_socket_channel: ^3.0.1
-  # background_remover: ^0.0.3
+  syncfusion_flutter_gauges: ^28.1.37
+  gauge_indicator: ^0.4.3
 
 dev_dependencies:
   flutter_test:
@@ -126,6 +124,9 @@ flutter:
         - asset: assets/fonts/Poppins/Poppins-Medium.ttf
         - asset: assets/fonts/Poppins/Poppins-Italic.ttf
           style: italic
+    - family: BebasNeue
+      fonts:
+        - asset: assets/fonts/BebasNeue/BebasNeue-Regular.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

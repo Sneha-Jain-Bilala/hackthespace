@@ -141,19 +141,12 @@ class _HomepageState extends State<Homepage> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(15),
-                              child: device.devImage.contains("assets")
-                                  ? Image.asset(
-                                      'assets/images/device.jpg',
-                                      fit: BoxFit.contain,
-                                      height: 70,
-                                      width: 70,
-                                    )
-                                  : Image.network(
-                                      device.devImage,
-                                      fit: BoxFit.contain,
-                                      height: 70,
-                                      width: 70,
-                                    ),
+                              child: Image.asset(
+                                'assets/images/device.jpg',
+                                fit: BoxFit.contain,
+                                height: 70,
+                                width: 70,
+                              ),
                             ),
                             GestureDetector(
                               onTap: () async {
