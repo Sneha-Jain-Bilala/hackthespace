@@ -20,7 +20,7 @@ const String DEVICE_ID = "device_1";
 const char* googleScriptUrl = "https://grooth.web.app/api";
 
 // Soil moisture sensor pin
-const int moistureSensorPin = 5;
+const int moistureSensorPin = 32;
 
 // NTP Client for timekeeping
 WiFiUDP ntpUDP;
@@ -393,7 +393,7 @@ void sendDataToGoogleScript(int moistureValue, float temperature, float humidity
     int httpResponseCode = http.GET();
     if (httpResponseCode > 0) {
       Serial.print("Google Script response: ");
-      Serial.println(http.getString());
+      // Serial.println(http.getString());
     } else {
       Serial.print("Error sending data to Google Sheets: ");
       Serial.println(httpResponseCode);
