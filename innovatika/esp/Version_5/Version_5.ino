@@ -15,9 +15,9 @@ const char* apSSID = "InnoVatika";
 const char* apPassword = "12345678";
 
 // Google Sheets script URL
-const String API_KEY = "sWs3PQl051D7WtKBYSzpdQV591YZEErV";
+const String API_KEY = "13ccf99210e38d8a3aa6710f";
 const String DEVICE_ID = "device_1";
-const char* googleScriptUrl = "https://script.google.com/macros/s/AKfycbzoO_SOCkgTWcRVDM7_ThDG_eycGDlhuo1HPiPf3dfIbadwagZb8D8ltpmMWCrAXpwH7g/exec";
+const char* googleScriptUrl = "https://grooth.web.app/api";
 
 // Soil moisture sensor pin
 const int moistureSensorPin = 5;
