@@ -28,21 +28,20 @@ class _HomepageState extends State<Homepage> {
     _initializeRealm();
   }
 
-  void _initializeRealm() {
-    Realm.open(Configuration.local([HardwareInformerr.schema]))
-        .then((openedRealm) {
-      setState(() {
-        realm = openedRealm;
-        final devices = realm.all<HardwareInformerr>().changes;
-        _devicesSubscription = devices.listen((event) => _onDevicesChanged());
-      });
+  Future<void> _initializeRealm() async {
+    final openedRealm =
+        await Realm.open(Configuration.local([HardwareInformerr.schema]));
+    setState(() {
+      realm = openedRealm;
+      final devices = realm.all<HardwareInformerr>().changes;
+      _devicesSubscription = devices.listen((event) => _onDevicesChanged());
     });
   }
 
   @override
   void dispose() {
     _devicesSubscription.cancel();
-    realm.close();
+    realm?.close();
     super.dispose();
   }
 

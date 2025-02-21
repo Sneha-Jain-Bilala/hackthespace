@@ -16,8 +16,10 @@ const char* apPassword = "12345678";
 
 // Google Sheets script URL
 const String API_KEY = "13ccf99210e38d8a3aa6710f";
+const String API_KEY_g = "sWs3PQl051D7WtKBYSzpdQV591YZEErV";
 const String DEVICE_ID = "device_1";
-const char* googleScriptUrl = "https://grooth.web.app/api";
+const char* googleScriptUrl = "https://script.google.com/macros/s/AKfycbzoO_SOCkgTWcRVDM7_ThDG_eycGDlhuo1HPiPf3dfIbadwagZb8D8ltpmMWCrAXpwH7g/exec";
+const char* apiURL = "https://grooth.web.app/api";
 
 // Soil moisture sensor pin
 const int moistureSensorPin = 32;
@@ -380,23 +382,43 @@ void triggerBuzzer(int n) {
 void sendDataToGoogleScript(int moistureValue, float temperature, float humidity) {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-    String url = String(googleScriptUrl) + 
+    String url = String(apiURL) + 
                  "?apiKey=" + API_KEY + 
+                 "&deviceId=" + DEVICE_ID + 
+                 "&moisture=" + String(moistureValue) + 
+                 "&temperature=" + String(temperature) + 
+                 "&humidity=" + String(humidity);
+    // Serial.println(url);
+    http.begin(url);
+
+    int httpResponseCode = http.GET();
+    if (httpResponseCode > 0) {
+      // Serial.print("Google Script response: ");
+      Serial.println(http.getString());
+    } else {
+      // Serial.print("Error sending data to Google Sheets: ");
+      Serial.println(httpResponseCode);
+    }
+    http.end();
+
+
+    String url2 = String(googleScriptUrl) + 
+                 "?apiKey=" + API_KEY_g + 
                  "&deviceId=" + DEVICE_ID + 
                  "&moisture=" + String(moistureValue) + 
                  "&temperature=" + String(temperature) + 
                  "&humidity=" + String(humidity) +
                  "&isFetch=false";
-    Serial.println(url);
-    http.begin(url);
+    // Serial.println(url);
+    http.begin(url2);
 
-    int httpResponseCode = http.GET();
-    if (httpResponseCode > 0) {
-      Serial.print("Google Script response: ");
-      // Serial.println(http.getString());
+    int httpResponseCode2 = http.GET();
+    if (httpResponseCode2 > 0) {
+      // Serial.print("Google Script response: ");
+      Serial.println(http.getString());
     } else {
-      Serial.print("Error sending data to Google Sheets: ");
-      Serial.println(httpResponseCode);
+      // Serial.print("Error sending data to Google Sheets: ");
+      Serial.println(httpResponseCode2);
     }
     http.end();
   } else {

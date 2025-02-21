@@ -27,6 +27,23 @@ class _ViewDeviceState extends State<ViewDevice> {
   late var jsonData;
   String _message = "Moderately Wet";
 
+  String moistureToPercentage(int rawValue) {
+    // Define your calibrated min/max values from the dry/wet tests
+    const int dryValue = 3000; // Sensor reading in completely dry soil
+    const int wetValue = 1500; // Sensor reading in water
+
+    // Constrain the input value to the calibrated range
+    int constrainedValue = rawValue.clamp(wetValue, dryValue);
+
+    // Map the value to percentage (0-100%)
+    // Note: We invert the percentage since higher sensor values mean lower moisture
+    int percentage =
+        ((dryValue - constrainedValue) / (dryValue - wetValue) * 100).round();
+
+    // Constrain to 0-100 range and return with % symbol
+    return percentage.clamp(0, 100).toString() + "%";
+  }
+
   Future<PlantInformer?> fetchPlantById(int plantId) async {
     // Open a Realm instance
     var config =
@@ -76,15 +93,15 @@ class _ViewDeviceState extends State<ViewDevice> {
 
   @override
   Widget build(BuildContext context) {
-    if (moisture > 0 && moisture < 500) {
+    if (moisture > 1400 && moisture < 1800) {
       _message = "Very Wet";
-    } else if (moisture > 500 && moisture < 1200) {
+    } else if (moisture > 1801 && moisture < 2100) {
       _message = "Moderately Wet";
-    } else if (moisture > 1200 && moisture < 2500) {
+    } else if (moisture > 2101 && moisture < 2400) {
       _message = "Moist";
-    } else if (moisture > 2500 && moisture < 3800) {
+    } else if (moisture > 2401 && moisture < 2700) {
       _message = "Dry";
-    } else if (moisture > 3800) {
+    } else if (moisture > 2701 && moisture < 3200) {
       _message = "Very Dry";
     }
     return Scaffold(
@@ -148,10 +165,7 @@ class _ViewDeviceState extends State<ViewDevice> {
                                                   padding:
                                                       const EdgeInsets.all(8.0),
                                                   child: Text(
-                                                    (moisture / 100)
-                                                            .toString()
-                                                            .toUpperCase() +
-                                                        "%",
+                                                    "${moistureToPercentage(moisture)}%",
                                                     style: TextStyle(
                                                       fontSize: 25,
                                                       fontWeight:
