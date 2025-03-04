@@ -98,7 +98,7 @@ class _ViewDeviceState extends State<ViewDevice> {
     } else if (moisture > 1801 && moisture < 2100) {
       _message = "Moderately Wet";
     } else if (moisture > 2101 && moisture < 2400) {
-      _message = "Moist";
+      _message = "Moderately Moist";
     } else if (moisture > 2401 && moisture < 2700) {
       _message = "Dry";
     } else if (moisture > 2701 && moisture < 3200) {
@@ -165,7 +165,7 @@ class _ViewDeviceState extends State<ViewDevice> {
                                                   padding:
                                                       const EdgeInsets.all(8.0),
                                                   child: Text(
-                                                    "${moistureToPercentage(moisture)}%",
+                                                    "${moistureToPercentage(moisture)}",
                                                     style: TextStyle(
                                                       fontSize: 25,
                                                       fontWeight:
@@ -518,8 +518,8 @@ class _ViewDeviceState extends State<ViewDevice> {
                           itemBuilder: (context, index) {
                             var item = jsonData["data"][index];
                             return ListTile(
-                              title:
-                                  Text("Moisture: ${item["moisture"] / 100} %"),
+                              title: Text(
+                                  "Moisture: ${moistureToPercentage(moisture)}"),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

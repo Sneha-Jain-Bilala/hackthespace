@@ -19,7 +19,7 @@ const String API_KEY = "13ccf99210e38d8a3aa6710f";
 const String API_KEY_g = "sWs3PQl051D7WtKBYSzpdQV591YZEErV";
 const String DEVICE_ID = "device_1";
 const char* googleScriptUrl = "https://script.google.com/macros/s/AKfycbzoO_SOCkgTWcRVDM7_ThDG_eycGDlhuo1HPiPf3dfIbadwagZb8D8ltpmMWCrAXpwH7g/exec";
-const char* apiURL = "https://grooth.web.app/api";
+const char* apiURL = "https://us-central1-grooth-1.cloudfunctions.net/api/api";
 
 // Soil moisture sensor pin
 const int moistureSensorPin = 32;

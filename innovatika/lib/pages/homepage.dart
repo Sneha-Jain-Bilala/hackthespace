@@ -41,7 +41,7 @@ class _HomepageState extends State<Homepage> {
   @override
   void dispose() {
     _devicesSubscription.cancel();
-    realm?.close();
+    realm.close();
     super.dispose();
   }
 
