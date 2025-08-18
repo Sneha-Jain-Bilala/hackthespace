@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 class GeminiClient {
   GeminiClient({
@@ -16,10 +16,13 @@ class GeminiClient {
   }) async {
     await dotenv.load(fileName: 'assets/env/data.env');
     final apiKey = dotenv.env['GEMINI_API_KEY'];
-    final geminiModel =
-        GenerativeModel(model: model, apiKey: apiKey.toString());
-    final response = await geminiModel.generateContent([Content.text(prompt)]);
-    return response.text;
+    Gemini.init(apiKey: apiKey.toString());
+    final response = await Gemini.instance.prompt(parts: [
+      Part.text(prompt),
+    ]);
+
+    // final response = await geminiModel.generateContent([Content.text(prompt)]);
+    return response!.output!;
   }
 
   String extractCodeBlock(String text) {

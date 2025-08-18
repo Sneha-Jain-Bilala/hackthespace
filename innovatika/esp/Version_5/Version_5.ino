@@ -9,8 +9,8 @@
 
 // Wi-Fi credentials
 Preferences preferences;
-const char* defaultSSID = "motog52";
-const char* defaultPassword = "yash9211";
+const char* defaultSSID = "a";
+const char* defaultPassword = "a";
 const char* apSSID = "InnoVatika";
 const char* apPassword = "12345678";
 

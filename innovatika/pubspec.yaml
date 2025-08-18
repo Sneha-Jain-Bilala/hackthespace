@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.5+6
+version: 1.0.6+7
 
 environment:
   sdk: ^3.5.2
@@ -42,26 +42,26 @@ dependencies:
   #     url: https://github.com/giandifra/arcore_flutter_plugin/
   #     ref: e2bf197
   o3d: ^3.1.2
-  geolocator: ^13.0.2
+  geolocator: ^14.0.2
   lottie: ^3.1.2
-  toastification: 2.3.0
-  permission_handler: ^11.3.1
+  toastification: ^3.0.3
+  permission_handler: ^12.0.1
   flutter_dotenv: ^5.1.0
-  # flutter_gemini: ^2.0.4
-  google_generative_ai: ^0.4.3
+  # google_generative_ai: ^0.4.3
   path_provider: ^2.0.9
   provider: ^6.1.2
   intl: ^0.20.2
-  geocoding: ^3.0.0
+  geocoding: ^4.0.0
   flutter_native_splash: ^2.2.19
   http: ^1.2.1
-  unsplash_client: ^2.2.0
+  unsplash_client: ^3.0.0
   async: ^2.11.0
   iconsax_flutter: ^1.0.0
   flashy_tab_bar2: ^0.0.10
-  mobile_scanner: ^6.0.2
-  syncfusion_flutter_gauges: ^28.1.37
+  mobile_scanner: ^7.0.1
+  syncfusion_flutter_gauges: ^30.1.42
   gauge_indicator: ^0.4.3
+  flutter_gemini: ^3.0.0
 
 dev_dependencies:
   flutter_test:
