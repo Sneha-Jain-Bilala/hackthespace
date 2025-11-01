@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:innovatika/database/informer_plant.dart';
 import 'package:innovatika/widget/appbar.dart';
+import 'package:innovatika/widget/const.dart';
 import 'package:innovatika/widget/garden_api.dart';
 import 'package:innovatika/widget/garden_widget.dart';
 import 'package:innovatika/widget/gemini.dart';
@@ -155,12 +156,6 @@ class _PlantDetailsState extends State<PlantDetails> {
     super.initState();
   }
 
-  // Define earthy/pastel text colors
-  static const Color _darkBrown = Color(0xFF4E342E);
-  static const Color _mediumBrown = Color(0xFF6D4C41);
-  static const Color _darkGreen = Color(0xFF2E7D32);
-  static const Color _lightPastelGreen = Color(0xFFA5D6A7);
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -228,25 +223,26 @@ class _PlantDetailsState extends State<PlantDetails> {
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    color: _darkBrown, // Apply color
+                                    color: AppColors.darkBrown, // Apply color
                                   ),
                                 ),
                                 subtitle: Text(
                                   garData.dateTime,
                                   style: TextStyle(
-                                      fontSize: 16, color: _mediumBrown),
+                                      fontSize: 16,
+                                      color: AppColors.mediumBrown),
                                 ),
                                 trailing: Container(
                                   padding: EdgeInsets.all(8.0),
                                   decoration: BoxDecoration(
-                                    color: _lightPastelGreen
+                                    color: AppColors.lightPastelGreen
                                         .withOpacity(0.5), // Apply color
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
                                     "${garData.plantAssoc.length} Plants",
                                     style: TextStyle(
-                                      color: _darkGreen, // Apply color
+                                      color: AppColors.darkGreen, // Apply color
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -256,16 +252,17 @@ class _PlantDetailsState extends State<PlantDetails> {
                           },
                         ),
                       ),
-                      Divider(color: _mediumBrown.withOpacity(0.3)),
+                      Divider(color: AppColors.mediumBrown.withOpacity(0.3)),
                       TextButton.icon(
                         onPressed: () {
                           addGardenFn(context, gardenID + 1);
                         },
-                        icon:
-                            Icon(Iconsax.add, color: _darkGreen), // Apply color
+                        icon: Icon(Iconsax.add,
+                            color: AppColors.darkGreen), // Apply color
                         label: Text(
                           "Add Garden",
-                          style: TextStyle(color: _darkGreen), // Apply color
+                          style: TextStyle(
+                              color: AppColors.darkGreen), // Apply color
                         ),
                       )
                     ],
@@ -316,7 +313,7 @@ class _PlantDetailsState extends State<PlantDetails> {
                               )
                             : Center(
                                 child: CircularProgressIndicator(
-                                    color: _darkGreen),
+                                    color: AppColors.darkGreen),
                               ), // Show loader if image is null
                       ),
                     ),
@@ -353,7 +350,7 @@ class _PlantDetailsState extends State<PlantDetails> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 23,
                                   fontFamily: "Ubuntu",
-                                  color: _darkBrown, // Apply color
+                                  color: AppColors.darkBrown, // Apply color
                                 ),
                                 textAlign: TextAlign.start,
                               ),
@@ -369,7 +366,8 @@ class _PlantDetailsState extends State<PlantDetails> {
                                         fontWeight: FontWeight.w500,
                                         fontSize: 15,
                                         fontFamily: "Ubuntu",
-                                        color: _mediumBrown, // Apply color
+                                        color: AppColors
+                                            .mediumBrown, // Apply color
                                       ),
                                     ),
                                   ),
@@ -395,19 +393,21 @@ class _PlantDetailsState extends State<PlantDetails> {
                                       },
                                       style: ButtonStyle(
                                         backgroundColor: WidgetStatePropertyAll(
-                                          _lightPastelGreen
+                                          AppColors.lightPastelGreen
                                               .withOpacity(0.5), // Apply color
                                         ),
                                       ),
                                       label: Text(
                                         "Save",
                                         style: TextStyle(
-                                          color: _darkGreen, // Apply color
+                                          color: AppColors
+                                              .darkGreen, // Apply color
                                         ),
                                       ),
                                       icon: Icon(
                                         Icons.favorite,
-                                        color: _darkGreen, // Apply color
+                                        color:
+                                            AppColors.darkGreen, // Apply color
                                       ),
                                     ),
                                   ),
@@ -418,7 +418,7 @@ class _PlantDetailsState extends State<PlantDetails> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
-                                  color: _darkBrown, // Apply color
+                                  color: AppColors.darkBrown, // Apply color
                                   fontFamily: "Montserrat",
                                 ),
                                 textAlign: TextAlign.start,
@@ -427,7 +427,7 @@ class _PlantDetailsState extends State<PlantDetails> {
                                 widget.plant.longDesc,
                                 textAlign: TextAlign.justify,
                                 style: TextStyle(
-                                  color: _mediumBrown, // Apply color
+                                  color: AppColors.mediumBrown, // Apply color
                                   fontFamily: "Ubuntu",
                                 ),
                               ),
@@ -439,7 +439,7 @@ class _PlantDetailsState extends State<PlantDetails> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
-                                  color: _darkBrown, // Apply color
+                                  color: AppColors.darkBrown, // Apply color
                                   fontFamily: "Montserrat",
                                 ),
                                 textAlign: TextAlign.start,
@@ -448,7 +448,7 @@ class _PlantDetailsState extends State<PlantDetails> {
                                 widget.plant.shortDesc,
                                 textAlign: TextAlign.justify,
                                 style: TextStyle(
-                                  color: _mediumBrown, // Apply color
+                                  color: AppColors.mediumBrown, // Apply color
                                   fontFamily: "Ubuntu",
                                 ),
                               )
@@ -495,12 +495,12 @@ class _PlantDetailsState extends State<PlantDetails> {
                   const SizedBox(
                     height: 50,
                   ),
-                  const Text(
+                  Text(
                     "Communing with the Plant Spirits...",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 22,
-                      color: _darkBrown, // Apply color
+                      color: AppColors.darkBrown, // Apply color
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -508,7 +508,7 @@ class _PlantDetailsState extends State<PlantDetails> {
                   const Text(
                     "Connecting with plant spirits to weave tales inspired by your location, creating a truly immersive experience.",
                     style: TextStyle(
-                      color: _mediumBrown, // Apply color
+                      color: AppColors.mediumBrown, // Apply color
                     ),
                     textAlign: TextAlign.center,
                   ),

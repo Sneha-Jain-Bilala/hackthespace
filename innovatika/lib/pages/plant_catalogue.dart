@@ -6,6 +6,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:innovatika/database/informer_plant.dart';
 import 'package:innovatika/pages/plant_details.dart';
+import 'package:innovatika/widget/const.dart';
 import 'package:innovatika/widget/gemini.dart';
 import 'package:innovatika/widget/mapping.dart';
 import 'package:innovatika/widget/unsplash_api.dart';
@@ -237,12 +238,6 @@ class _PlantCategorizationState extends State<PlantCategorization> {
     geminiReq();
   }
 
-  // Define earthy/pastel text colors
-  static const Color _darkBrown = Color(0xFF4E342E);
-  static const Color _mediumBrown = Color(0xFF6D4C41);
-  static const Color _darkGreen = Color(0xFF2E7D32);
-  static const Color _lightPastelGreen = Color(0xFFA5D6A7);
-
   @override
   Widget build(BuildContext context) {
     // Parse the JSON data
@@ -305,7 +300,7 @@ class _PlantCategorizationState extends State<PlantCategorization> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 22,
-                        color: _darkBrown, // Changed text color
+                        color: AppColors.darkBrown, // Changed text color
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -313,7 +308,7 @@ class _PlantCategorizationState extends State<PlantCategorization> {
                     const Text(
                       "We need location permission to show personalised plant recommendation based on your location.",
                       style: TextStyle(
-                        color: _mediumBrown, // Changed text color
+                        color: AppColors.mediumBrown, // Changed text color
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -325,8 +320,8 @@ class _PlantCategorizationState extends State<PlantCategorization> {
                         await openAppSettings();
                       },
                       style: TextButton.styleFrom(
-                        backgroundColor:
-                            _lightPastelGreen.withOpacity(0.5), // Pastel green
+                        backgroundColor: AppColors.lightPastelGreen
+                            .withOpacity(0.5), // Pastel green
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -334,7 +329,8 @@ class _PlantCategorizationState extends State<PlantCategorization> {
                       child: const Text(
                         "Open Location Settings",
                         style: TextStyle(
-                            color: _darkGreen, fontWeight: FontWeight.bold),
+                            color: AppColors.darkGreen,
+                            fontWeight: FontWeight.bold),
                       ),
                     )
                   ],
@@ -376,7 +372,7 @@ class _PlantCategorizationState extends State<PlantCategorization> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 22,
-                      color: _darkBrown, // Changed text color
+                      color: AppColors.darkBrown, // Changed text color
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -385,7 +381,7 @@ class _PlantCategorizationState extends State<PlantCategorization> {
                     child: Text(
                       "Tapping into nature's whispers to cultivate stories that bloom uniquely for you",
                       style: TextStyle(
-                        color: _mediumBrown, // Changed text color
+                        color: AppColors.mediumBrown, // Changed text color
                         fontSize: 16,
                       ),
                       textAlign: TextAlign.center,
@@ -488,13 +484,14 @@ class _PlantCategorizationState extends State<PlantCategorization> {
                     return progress == null
                         ? child
                         : const Center(
-                            child: CircularProgressIndicator(color: _darkGreen),
+                            child: CircularProgressIndicator(
+                                color: AppColors.darkGreen),
                           );
                   },
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(
                       child: Icon(Icons.broken_image,
-                          size: 50, color: _mediumBrown),
+                          size: 50, color: AppColors.mediumBrown),
                     );
                   },
                 ),
@@ -511,7 +508,7 @@ class _PlantCategorizationState extends State<PlantCategorization> {
     fontSize: 20,
     fontFamily: "BebasNeue",
     fontWeight: FontWeight.bold,
-    color: _darkBrown, // Changed text color
+    color: AppColors.darkBrown, // Changed text color
   );
 
   Widget category1(List<Plant> plants) {
