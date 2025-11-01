@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:ui'; // Import for ImageFilter
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -194,235 +196,355 @@ class _PlantCategorizationState extends State<PlantCategorization> {
     futureGroup.add(processGemReq("shrubs", locationCity));
     futureGroup.close();
     futureGroup.future.then((onValue) {
-      setState(() {
-        isGeminiRequestInProgress = false;
-      });
+      if (mounted) {
+        setState(() {
+          isGeminiRequestInProgress = false;
+        });
+      }
     });
   }
 
   Future geminiReq() async {
-    final Position position = await _determinePosition();
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-    setState(() {
-      locationCity = placemarks[0].locality ?? "India";
-    });
+    try {
+      final Position position = await _determinePosition();
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      if (mounted) {
+        setState(() {
+          locationCity = placemarks[0].locality ?? "India";
+        });
+      } else {
+        return; // Stop execution if widget is disposed
+      }
 
-    callAPI();
-
-    //fruit catalogue
-    // final fruitData = await processGemReq("fruit", locationCity);
-
-    // //veggies catalogue
-    // final veggiesData = await processGemReq("veggies", locationCity);
-
-    // //Flowers catalogue
-    // final flowersData = await processGemReq("Flowers", locationCity);
-
-    // //Herbs catalogue
-    // final herbsData = await processGemReq("herbs", locationCity);
-
-    // //Shrubs catalogue
-    // final shrubsData = await processGemReq("shrubs", locationCity);
-
-    // setState(() {
-    //   isGeminiRequestInProgress = false;
-    // });
+      callAPI();
+    } catch (e) {
+      print("Error in geminiReq (location or placemark): $e");
+      if (mounted) {
+        setState(() {
+          // Handle error, maybe show location permission screen again
+          displayLocationPermission = true;
+        });
+      }
+    }
   }
 
   @override
   void initState() {
-    geminiReq();
     super.initState();
+    geminiReq();
   }
+
+  // Define earthy/pastel text colors
+  static const Color _darkBrown = Color(0xFF4E342E);
+  static const Color _mediumBrown = Color(0xFF6D4C41);
+  static const Color _darkGreen = Color(0xFF2E7D32);
+  static const Color _lightPastelGreen = Color(0xFFA5D6A7);
 
   @override
   Widget build(BuildContext context) {
     // Parse the JSON data
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: displayLocationPermission
-          ? locationAnimation()
-          : isGeminiRequestInProgress
-              ? geminiReqAnimation(width)
-              : plantCatalogue(),
+      // Apply a gradient background for the glass effect to be visible
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            // New pastel colors related to gardening
+            colors: [
+              Color(0xFFE8F5E9), // Pastel Green
+              Color(0xFFFFFDE7), // Pastel Yellow/Cream
+              Color(0xFFE3F2FD), // Pastel Blue
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          // Use SafeArea to avoid UI overlapping with notches
+          child: displayLocationPermission
+              ? locationAnimation()
+              : isGeminiRequestInProgress
+                  ? geminiReqAnimation(width)
+                  : plantCatalogue(),
+        ),
+      ),
     );
   }
 
   Widget locationAnimation() => Center(
-        child: ListView(
-          children: [
-            Lottie.asset("assets/animation/location.json"),
-            const SizedBox(
-              height: 50,
-            ),
-            const Text(
-              "Allow Location Access",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+        child: Container(
+          margin: const EdgeInsets.all(20), // Margin for the glass card
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.3), // Slightly more opaque
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.4),
+                    width: 1.5,
+                  ),
+                ),
+                child: ListView(
+                  shrinkWrap: true, // Make ListView fit its content
+                  children: [
+                    Lottie.asset("assets/animation/location.json", height: 250),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    const Text(
+                      "Allow Location Access",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: _darkBrown, // Changed text color
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "We need location permission to show personalised plant recommendation based on your location.",
+                      style: TextStyle(
+                        color: _mediumBrown, // Changed text color
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await openAppSettings();
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor:
+                            _lightPastelGreen.withOpacity(0.5), // Pastel green
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "Open Location Settings",
+                        style: TextStyle(
+                            color: _darkGreen, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
-            const Text(
-              "We need location permission to show personalised plant recommendation based on your location.",
-              style: TextStyle(
-                color: Colors.black38,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextButton(
-              onPressed: () async {
-                await openAppSettings();
-              },
-              child: const Text(
-                "Open Location Settings",
-              ),
-            )
-          ],
+          ),
         ),
       );
+
   Widget geminiReqAnimation(double width) {
-    return ListView(
-      children: [
-        Lottie.asset("assets/animation/geminiReqAnimation.json"),
-        const SizedBox(
-          height: 50,
-        ),
-        const Text(
-          "Embrace Nature's Lore",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 22,
-            color: Color(0xFF333333),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Padding(
-          padding: EdgeInsets.all(18.0),
-          child: Text(
-            "Tapping into nature's whispers to cultivate stories that bloom uniquely for you",
-            style: TextStyle(
-              color: Color.fromARGB(255, 50, 75, 60),
-              fontSize: 16,
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.3), // Slightly more opaque
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.4),
+                  width: 1.5,
+                ),
+              ),
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  Lottie.asset("assets/animation/geminiReqAnimation.json",
+                      height: 300),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  const Text(
+                    "Embrace Nature's Lore",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: _darkBrown, // Changed text color
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(18.0),
+                    child: Text(
+                      "Tapping into nature's whispers to cultivate stories that bloom uniquely for you",
+                      style: TextStyle(
+                        color: _mediumBrown, // Changed text color
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
             ),
-            textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(
-          height: 20,
-        ),
-      ],
+      ),
     );
   }
 
   Widget plantCatalogue() {
     return ListView(
       primary: true,
+      padding: const EdgeInsets.only(top: 20, bottom: 20), // Add padding
       children: [
-        const SizedBox(
-          height: 20,
-        ),
-        category1(flower),
-        category2(fruit),
-        category3(veggies),
-        category4(herbs),
-        category5(shrubs),
+        if (flower.isNotEmpty) category1(flower),
+        if (fruit.isNotEmpty) category2(fruit),
+        if (veggies.isNotEmpty) category3(veggies),
+        if (herbs.isNotEmpty) category4(herbs),
+        if (shrubs.isNotEmpty) category5(shrubs),
       ],
     );
   }
 
+  // Helper widget to create a glass icon
+  Widget _buildGlassIcon(String imagePath) {
+    return Container(
+      margin: const EdgeInsets.only(left: 20),
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.3),
+              border:
+                  Border.all(color: Colors.white.withOpacity(0.4), width: 1),
+            ),
+            child: ClipOval(
+              child: FractionallySizedBox(
+                widthFactor: 0.7, // Adjusted size
+                heightFactor: 0.7, // Adjusted size
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.contain, // Use contain to avoid clipping
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper widget to create a glass plant card
+  Widget _buildGlassPlantCard(Plant plant) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlantDetails(
+              plant: plant,
+              location: locationCity,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(left: 20),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15.0),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              width: 110, // Increased size slightly
+              height: 110, // Increased size slightly
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(15.0),
+                border:
+                    Border.all(color: Colors.white.withOpacity(0.4), width: 1),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: Image.network(
+                  plant.image,
+                  fit: BoxFit.cover,
+                  // Add loading and error builders for a better UX
+                  loadingBuilder: (context, child, progress) {
+                    return progress == null
+                        ? child
+                        : const Center(
+                            child: CircularProgressIndicator(color: _darkGreen),
+                          );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(Icons.broken_image,
+                          size: 50, color: _mediumBrown),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Common text style for category titles
+  final TextStyle categoryTitleStyle = const TextStyle(
+    fontSize: 20,
+    fontFamily: "BebasNeue",
+    fontWeight: FontWeight.bold,
+    color: _darkBrown, // Changed text color
+  );
+
   Widget category1(List<Plant> plants) {
     return SizedBox(
-      height: 200,
+      height: 220, // Adjusted height
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
         primary: false,
         children: [
           Row(
             children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                margin: const EdgeInsets.only(left: 20),
-                child: ClipOval(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.8, // 80% width of the parent container
-                    heightFactor: 0.8, // 80% height of the parent container
-                    child: Image.asset(
-                      "assets/images/flower.png",
-                      fit: BoxFit
-                          .cover, // Cover the entire area of FractionallySizedBox
-                    ),
-                  ),
-                ),
-              ),
+              _buildGlassIcon("assets/images/flower.png"),
               const SizedBox(
                 width: 20,
               ),
-              const Text(
+              Text(
                 "Flowering Plants",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: "Ubuntu",
-                  fontWeight: FontWeight.bold,
-                ),
+                style: categoryTitleStyle,
               )
             ],
           ),
           const SizedBox(
             height: 20,
           ),
-          Container(
+          SizedBox(
             width: 100,
-            height: 100,
-            margin: const EdgeInsets.only(left: 30),
+            height: 110, // Adjusted height
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: plants.length,
+              padding: const EdgeInsets.only(left: 10), // Adjust padding
               itemBuilder: (context, index) {
-                Plant plant = plants[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlantDetails(
-                          plant: plant,
-                          location: locationCity,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    margin: const EdgeInsets.only(left: 20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        plant.image,
-                        fit: BoxFit
-                            .cover, // Cover the entire area of FractionallySizedBox
-                      ),
-                    ),
-                  ),
-                );
+                return _buildGlassPlantCard(plants[index]);
               },
             ),
           ),
@@ -433,88 +555,35 @@ class _PlantCategorizationState extends State<PlantCategorization> {
 
   Widget category2(List<Plant> plants) {
     return SizedBox(
-      height: 200,
+      height: 220,
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
         primary: false,
         children: [
           Row(
             children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                margin: const EdgeInsets.only(left: 20),
-                child: ClipOval(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.8, // 80% width of the parent container
-                    heightFactor: 0.8, // 80% height of the parent container
-                    child: Image.asset(
-                      "assets/images/fruit.png",
-                      fit: BoxFit
-                          .cover, // Cover the entire area of FractionallySizedBox
-                    ),
-                  ),
-                ),
-              ),
+              _buildGlassIcon("assets/images/fruit.png"),
               const SizedBox(
                 width: 20,
               ),
-              const Text(
+              Text(
                 "Fruit-Bearing Plants",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: "Ubuntu",
-                  fontWeight: FontWeight.bold,
-                ),
+                style: categoryTitleStyle,
               )
             ],
           ),
           const SizedBox(
             height: 20,
           ),
-          Container(
+          SizedBox(
             width: 100,
-            height: 100,
-            margin: const EdgeInsets.only(left: 30),
+            height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: plants.length,
+              padding: const EdgeInsets.only(left: 10),
               itemBuilder: (context, index) {
-                Plant plant = plants[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlantDetails(
-                          plant: plant,
-                          location: locationCity,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    margin: const EdgeInsets.only(left: 20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        plant.image,
-                        fit: BoxFit
-                            .cover, // Cover the entire area of FractionallySizedBox
-                      ),
-                    ),
-                  ),
-                );
+                return _buildGlassPlantCard(plants[index]);
               },
             ),
           ),
@@ -525,88 +594,35 @@ class _PlantCategorizationState extends State<PlantCategorization> {
 
   Widget category3(List<Plant> plants) {
     return SizedBox(
-      height: 200,
+      height: 220,
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
         primary: false,
         children: [
           Row(
             children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                margin: const EdgeInsets.only(left: 20),
-                child: ClipOval(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.8, // 80% width of the parent container
-                    heightFactor: 0.8, // 80% height of the parent container
-                    child: Image.asset(
-                      "assets/images/vegetables.png",
-                      fit: BoxFit
-                          .cover, // Cover the entire area of FractionallySizedBox
-                    ),
-                  ),
-                ),
-              ),
+              _buildGlassIcon("assets/images/vegetables.png"),
               const SizedBox(
                 width: 20,
               ),
-              const Text(
+              Text(
                 "Vegetables",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: "Ubuntu",
-                  fontWeight: FontWeight.bold,
-                ),
+                style: categoryTitleStyle,
               )
             ],
           ),
           const SizedBox(
             height: 20,
           ),
-          Container(
+          SizedBox(
             width: 100,
-            height: 100,
-            margin: const EdgeInsets.only(left: 30),
+            height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: plants.length,
+              padding: const EdgeInsets.only(left: 10),
               itemBuilder: (context, index) {
-                Plant plant = plants[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlantDetails(
-                          plant: plant,
-                          location: locationCity,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    margin: const EdgeInsets.only(left: 20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        plant.image,
-                        fit: BoxFit
-                            .cover, // Cover the entire area of FractionallySizedBox
-                      ),
-                    ),
-                  ),
-                );
+                return _buildGlassPlantCard(plants[index]);
               },
             ),
           ),
@@ -617,88 +633,35 @@ class _PlantCategorizationState extends State<PlantCategorization> {
 
   Widget category4(List<Plant> plants) {
     return SizedBox(
-      height: 200,
+      height: 220,
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
         primary: false,
         children: [
           Row(
             children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                margin: const EdgeInsets.only(left: 20),
-                child: ClipOval(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.8, // 80% width of the parent container
-                    heightFactor: 0.8, // 80% height of the parent container
-                    child: Image.asset(
-                      "assets/images/herbs.png",
-                      fit: BoxFit
-                          .cover, // Cover the entire area of FractionallySizedBox
-                    ),
-                  ),
-                ),
-              ),
+              _buildGlassIcon("assets/images/herbs.png"),
               const SizedBox(
                 width: 20,
               ),
-              const Text(
+              Text(
                 "Herbs",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: "Ubuntu",
-                  fontWeight: FontWeight.bold,
-                ),
+                style: categoryTitleStyle,
               )
             ],
           ),
           const SizedBox(
             height: 20,
           ),
-          Container(
+          SizedBox(
             width: 100,
-            height: 100,
-            margin: const EdgeInsets.only(left: 30),
+            height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: plants.length,
+              padding: const EdgeInsets.only(left: 10),
               itemBuilder: (context, index) {
-                Plant plant = plants[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlantDetails(
-                          plant: plant,
-                          location: locationCity,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    margin: const EdgeInsets.only(left: 20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        plant.image,
-                        fit: BoxFit
-                            .cover, // Cover the entire area of FractionallySizedBox
-                      ),
-                    ),
-                  ),
-                );
+                return _buildGlassPlantCard(plants[index]);
               },
             ),
           ),
@@ -709,88 +672,35 @@ class _PlantCategorizationState extends State<PlantCategorization> {
 
   Widget category5(List<Plant> plants) {
     return SizedBox(
-      height: 200,
+      height: 220,
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
         primary: false,
         children: [
           Row(
             children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                margin: const EdgeInsets.only(left: 20),
-                child: ClipOval(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.8, // 80% width of the parent container
-                    heightFactor: 0.8, // 80% height of the parent container
-                    child: Image.asset(
-                      "assets/images/shrubs.png",
-                      fit: BoxFit
-                          .cover, // Cover the entire area of FractionallySizedBox
-                    ),
-                  ),
-                ),
-              ),
+              _buildGlassIcon("assets/images/shrubs.png"),
               const SizedBox(
                 width: 20,
               ),
-              const Text(
+              Text(
                 "Shrubs",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: "Ubuntu",
-                  fontWeight: FontWeight.bold,
-                ),
+                style: categoryTitleStyle,
               )
             ],
           ),
           const SizedBox(
             height: 20,
           ),
-          Container(
+          SizedBox(
             width: 100,
-            height: 100,
-            margin: const EdgeInsets.only(left: 30),
+            height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: plants.length,
+              padding: const EdgeInsets.only(left: 10),
               itemBuilder: (context, index) {
-                Plant plant = plants[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlantDetails(
-                          plant: plant,
-                          location: locationCity,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    margin: const EdgeInsets.only(left: 20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        plant.image,
-                        fit: BoxFit
-                            .cover, // Cover the entire area of FractionallySizedBox
-                      ),
-                    ),
-                  ),
-                );
+                return _buildGlassPlantCard(plants[index]);
               },
             ),
           ),

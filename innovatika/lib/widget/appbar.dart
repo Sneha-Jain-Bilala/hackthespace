@@ -8,6 +8,7 @@ AppBar commonApp({
   String? title,
   Widget? widget,
 }) {
+  const Color _darkBrown = Color(0xFF4E342E);
   return AppBar(
     automaticallyImplyLeading: false,
     // leading: const Text("Compu Rf"),
@@ -29,6 +30,16 @@ AppBar commonApp({
             ),
           )
         : null,
+    backgroundColor: Colors.transparent, // Make app bar transparent
+    elevation: 0, // Remove shadow
+    titleTextStyle: TextStyle(
+      color: _darkBrown, // Set title color
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      fontFamily: "Ubuntu",
+    ),
+    iconTheme: IconThemeData(color: _darkBrown), // Set icon color
+
     actions: Navigator.canPop(context)
         ? null
         : [
